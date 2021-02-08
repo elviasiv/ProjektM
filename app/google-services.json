@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "425143835003",
+    "project_id": "projektm-76ff2",
+    "storage_bucket": "projektm-76ff2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425143835003:android:d2857678ff268b15bd45de",
+        "android_client_info": {
+          "package_name": "com.elviva.projektm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425143835003-f9sr6hoip6qj348f9qvgm5ftdh01pkdf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4bqocrlcK3Qk7TEsUP-ow5pN6qtPtFDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425143835003-f9sr6hoip6qj348f9qvgm5ftdh01pkdf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

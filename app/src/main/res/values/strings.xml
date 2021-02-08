@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">ProjektM</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+
+    <string name="image_contentDescription">image</string>
+    <string name="get_started_text">Let\'s Get started</string>
+    <string name="intro_text_description">Collaborate and Plan Together Across Multiple Devices on ProjektM’s Minimalist Interface.</string>
+
+    <string name="sign_up_description_text">Enter your name, email id and password, to register with us.</string>
+    <string name="name">Name</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="sign_in_description_text">Enter Your email and password to sign in</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="please_click_back_again_to_exit">Please click back again to exit</string>
+
+    <string name="nav_my_profile">My Profile</string>
+    <string name="nav_sign_out">Sign Out</string>
+
+</resources>
