@@ -2,7 +2,9 @@ package com.elviva.projektm.firebase
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import com.elviva.projektm.activities.MainActivity
+import com.elviva.projektm.activities.MyProfileActivity
 import com.elviva.projektm.activities.SignInActivity
 import com.elviva.projektm.activities.SignUpActivity
 import com.elviva.projektm.models.User
@@ -28,7 +30,7 @@ class FirestoreClass {
             }
     }
 
-    fun signInUser(activity: Activity){
+    fun loadUserData(activity: Activity){
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUUID())
             .get()
@@ -36,9 +38,14 @@ class FirestoreClass {
                 val loggedInUser = document.toObject(User::class.java)
                 if(loggedInUser != null) {
                     when(activity){
-                        is SignInActivity -> activity.signInSuccess(loggedInUser)
+                        is SignInActivity -> {
+                            activity.signInSuccess(loggedInUser)
+                        }
                         is MainActivity -> {
                             activity.updateNavigationUserDetails(loggedInUser)
+                        }
+                        is MyProfileActivity -> {
+                            activity.setUserDataUI(loggedInUser)
                         }
                     }
 
@@ -57,10 +64,28 @@ class FirestoreClass {
             }
     }
 
+    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>){
+        mFirestore.collection(Constants.USERS)
+            .document(getCurrentUUID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName, "Profile Data updated successfully")
+                Toast.makeText(activity, "Profile data updated successfully!", Toast.LENGTH_SHORT).show()
+                activity.profileUpdateSuccess()
+            }
+            .addOnFailureListener{
+                e ->
+                Log.e(activity.javaClass.simpleName, "Error while updating", e)
+                Toast.makeText(activity, "Error while updating profile", Toast.LENGTH_SHORT).show()
+            }
+        activity.hideProgressDialog()
+
+    }
+
 
     fun getCurrentUUID(): String{
 
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
         if(currentUser != null){
             currentUserID = currentUser.uid

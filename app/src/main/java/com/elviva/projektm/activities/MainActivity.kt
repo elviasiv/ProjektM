@@ -1,15 +1,15 @@
 package com.elviva.projektm.activities
 
+import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.elviva.projektm.R
 import com.elviva.projektm.databinding.ActivityMainBinding
@@ -23,8 +23,10 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var binding : ActivityMainBinding
-    lateinit var navBinding : NavHeaderMainBinding
-    lateinit var mainBinding : MainContentBinding
+
+    companion object {
+        const val MY_PROFILE_REQUEST_CODE : Int = 11
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,30 +34,33 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val view = binding.root
         setContentView(view)
 
-        navBinding = NavHeaderMainBinding.inflate(layoutInflater)
-
-
-        binding.includeAppBar.includeMainContent.tvHelloWorld.text = "kendrick lmao"
+        val mainContent = binding.includeAppBar.includeMainContent
 
 
         setupActionBar()
 
         binding.navView.setNavigationItemSelectedListener(this) //We pass in "this" because we inherit from NavigationView
 
-        FirestoreClass().signInUser(this)
+        FirestoreClass().loadUserData(this)
     }
 
     //Set the image and username text in the drawer
     fun updateNavigationUserDetails(user : User) {
+
+        //Workaround binding. With binding cant access NavigationView header layout, so I access it manually
+        //and you cannot use 'kotlin-android-extensions' with 'kotlin-parcelize'
+        val nav : View = binding.navView.getHeaderView(0)
+        val navTextView : TextView = nav.findViewById(R.id.tvUsername)
+        val navImageView : ImageView = nav.findViewById(R.id.navUserImage)
+
         Glide
             .with(this)
             .load(user.image)
             .centerCrop()
             .placeholder(R.drawable.ic_user_place_holder)
-            .into(navBinding.navUserImage)
+            .into(navImageView)
 
-        navBinding.tvUsername.text = user.name
-       // mainBinding.tvHelloWorld.text = user.name
+        navTextView.text = user.name
     }
 
     private fun setupActionBar(){
@@ -88,7 +93,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId){
-            R.id.nav_my_profile -> Toast.makeText(this, "My Profile", Toast.LENGTH_SHORT).show()
+            R.id.nav_my_profile -> {
+                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
+            }
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()
 
@@ -104,5 +111,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
+            FirestoreClass().loadUserData(this)
+        } else {
+            Log.i("Cancelled", "Cancelled on activity result in MainActivity")
+        }
+    }
+
 
 }
