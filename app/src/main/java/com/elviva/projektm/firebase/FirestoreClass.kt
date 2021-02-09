@@ -15,44 +15,76 @@ class FirestoreClass {
 
     private val mFirestore = FirebaseFirestore.getInstance()
 
-    fun registerUser(activity: SignUpActivity, userInfo: User){
+    fun registerUser(activity: SignUpActivity, userInfo: User) {
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUUID())
             .set(userInfo, SetOptions.merge())
             .addOnSuccessListener {
                 activity.userRegisteredSuccess()
             }
-            .addOnFailureListener {
-                e ->
+            .addOnFailureListener { e ->
                 Log.e(activity.javaClass.simpleName, "Error: " + e)
                 activity.hideProgressDialog()
             }
     }
 
-    fun getBoardsList(activity: MainActivity){
+    fun addUpdateTaskList(activity: TaskListActivity, board: Board) {
+        val taskListHashMap = HashMap<String, Any>()
+        taskListHashMap[Constants.TASK_LIST] = board.taskList
+
+        mFirestore.collection(Constants.BOARDS)
+            .document(board.documentId)
+            .update(taskListHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName, "TaskList updated successfully")
+
+                activity.addUpdateTaskListSuccess()
+            }
+            .addOnFailureListener{
+                e ->
+                activity.hideProgressDialog()
+                Log.i(activity.javaClass.simpleName, "Error while creating the board", e)
+            }
+    }
+
+    fun getBoardDetails(activity: TaskListActivity, documentId: String) {
+        mFirestore.collection(Constants.BOARDS)
+            .document(documentId)
+            .get()
+            .addOnSuccessListener { document ->
+                Log.i(activity.javaClass.simpleName, document.toString())
+                val board = document.toObject(Board::class.java)!!
+                board.documentId = document.id
+                activity.boardDetails(board)
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while creating data", e)
+            }
+    }
+
+    fun getBoardsList(activity: MainActivity) {
         mFirestore.collection(Constants.BOARDS)
             .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUUID())
             .get()
-            .addOnSuccessListener {
-                document ->
+            .addOnSuccessListener { document ->
                 Log.i(activity.javaClass.simpleName, document.documents.toString())
                 val boardsList: ArrayList<Board> = ArrayList()
-                for(i in document.documents){
+                for (i in document.documents) {
                     val board = i.toObject(Board::class.java)!!
-                    board.documentID = i.id
+                    board.documentId = i.id
                     boardsList.add(board)
                 }
 
                 activity.populateBoardsListToUI(boardsList)
             }
-            .addOnFailureListener{
-                e ->
+            .addOnFailureListener { e ->
                 activity.hideProgressDialog()
-                Log.e(activity.javaClass.simpleName, "Error while creating data")
+                Log.e(activity.javaClass.simpleName, "Error while creating data", e)
             }
     }
 
-    fun createBoard(activity: CreateBoardActivity, boardInfo: Board){
+    fun createBoard(activity: CreateBoardActivity, boardInfo: Board) {
         mFirestore.collection(Constants.BOARDS)
             .document()
             .set(boardInfo, SetOptions.merge())
@@ -60,21 +92,20 @@ class FirestoreClass {
                 Toast.makeText(activity, "Board created successfully", Toast.LENGTH_SHORT).show()
                 activity.boardCreatedSuccessfully()
             }
-            .addOnFailureListener {
-                    e ->
+            .addOnFailureListener { e ->
                 Log.e(activity.javaClass.simpleName, "Error: " + e)
                 activity.hideProgressDialog()
             }
     }
 
-    fun loadUserData(activity: Activity, readBoardsList: Boolean = false){
+    fun loadUserData(activity: Activity, readBoardsList: Boolean = false) {
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUUID())
             .get()
             .addOnSuccessListener { document ->
                 val loggedInUser = document.toObject(User::class.java)
-                if(loggedInUser != null) {
-                    when(activity){
+                if (loggedInUser != null) {
+                    when (activity) {
                         is SignInActivity -> {
                             activity.signInSuccess(loggedInUser)
                         }
@@ -91,7 +122,7 @@ class FirestoreClass {
                 }
             }
             .addOnFailureListener { e ->
-                when(activity){
+                when (activity) {
                     is SignInActivity -> activity.hideProgressDialog()
                     is MainActivity -> {
                         activity.hideProgressDialog()
@@ -101,17 +132,17 @@ class FirestoreClass {
             }
     }
 
-    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>){
+    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUUID())
             .update(userHashMap)
             .addOnSuccessListener {
                 Log.i(activity.javaClass.simpleName, "Profile Data updated successfully")
-                Toast.makeText(activity, "Profile data updated successfully!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "Profile data updated successfully!", Toast.LENGTH_SHORT)
+                    .show()
                 activity.profileUpdateSuccess()
             }
-            .addOnFailureListener{
-                e ->
+            .addOnFailureListener { e ->
                 Log.e(activity.javaClass.simpleName, "Error while updating", e)
                 Toast.makeText(activity, "Error while updating profile", Toast.LENGTH_SHORT).show()
             }
@@ -120,11 +151,11 @@ class FirestoreClass {
     }
 
 
-    fun getCurrentUUID(): String{
+    fun getCurrentUUID(): String {
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
-        if(currentUser != null){
+        if (currentUser != null) {
             currentUserID = currentUser.uid
         }
 
