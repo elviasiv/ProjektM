@@ -24,4 +24,14 @@
         android:id="@+id/includeMainContent"
         layout="@layout/main_content"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAppBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:background="@color/primary"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_vector_add_24dp"
+        android:contentDescription="@string/image_contentDescription" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

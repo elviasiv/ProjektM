@@ -10,22 +10,29 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.elviva.projektm.R
+import com.elviva.projektm.adapters.BoardItemsAdapter
 import com.elviva.projektm.databinding.ActivityMainBinding
 import com.elviva.projektm.databinding.MainContentBinding
 import com.elviva.projektm.databinding.NavHeaderMainBinding
 import com.elviva.projektm.firebase.FirestoreClass
+import com.elviva.projektm.models.Board
 import com.elviva.projektm.models.User
+import com.elviva.projektm.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var binding : ActivityMainBinding
+    private lateinit var mUsername : String
+    private lateinit var mainContent : MainContentBinding
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE : Int = 11
+        const val CREATE_BOARD_REQUEST_CODE : Int = 12
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,24 +41,53 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val view = binding.root
         setContentView(view)
 
-        val mainContent = binding.includeAppBar.includeMainContent
+        mainContent = binding.includeAppBar.includeMainContent
+        val fabButton = binding.includeAppBar.fabAppBar
 
 
         setupActionBar()
 
         binding.navView.setNavigationItemSelectedListener(this) //We pass in "this" because we inherit from NavigationView
 
-        FirestoreClass().loadUserData(this)
+        FirestoreClass().loadUserData(this, true)
+
+        fabButton.setOnClickListener {
+            val intent = Intent(this, CreateBoardActivity::class.java)
+            intent.putExtra(Constants.NAME, mUsername)
+            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
+        }
+    }
+
+    fun populateBoardsListToUI(boardsList: ArrayList<Board>){
+        hideProgressDialog()
+
+        if(boardsList.size > 0){
+            mainContent.rvBoardsList.visibility = View.VISIBLE
+            mainContent.tvNoBoardsAvailable.visibility = View.GONE
+
+            mainContent.rvBoardsList.layoutManager = LinearLayoutManager(this)
+            mainContent.rvBoardsList.setHasFixedSize(true)
+
+            val adapter = BoardItemsAdapter(this, boardsList)
+
+            mainContent.rvBoardsList.adapter = adapter
+        } else {
+            mainContent.rvBoardsList.visibility = View.GONE
+            mainContent.tvNoBoardsAvailable.visibility = View.VISIBLE
+        }
     }
 
     //Set the image and username text in the drawer
-    fun updateNavigationUserDetails(user : User) {
+    fun updateNavigationUserDetails(user : User, readBoardsList: Boolean) {
 
         //Workaround binding. With binding cant access NavigationView header layout, so I access it manually
         //and you cannot use 'kotlin-android-extensions' with 'kotlin-parcelize'
         val nav : View = binding.navView.getHeaderView(0)
         val navTextView : TextView = nav.findViewById(R.id.tvUsername)
         val navImageView : ImageView = nav.findViewById(R.id.navUserImage)
+
+        mUsername = user.name
+
 
         Glide
             .with(this)
@@ -61,6 +97,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .into(navImageView)
 
         navTextView.text = user.name
+
+        if(readBoardsList){
+            showProgressDialog(resources.getString(R.string.please_wait))
+
+            FirestoreClass().getBoardsList(this)
+        }
     }
 
     private fun setupActionBar(){
@@ -116,7 +158,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
             FirestoreClass().loadUserData(this)
-        } else {
+        } else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
+            FirestoreClass().getBoardsList(this)
+        }
+        else {
             Log.i("Cancelled", "Cancelled on activity result in MainActivity")
         }
     }

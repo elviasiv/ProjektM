@@ -1,0 +1,45 @@
+package com.elviva.projektm.models
+
+import android.os.Parcel
+import android.os.Parcelable
+
+data class Board (
+        val name : String = "",
+        val image : String = "",
+        val creator : String = "",
+        val assignedTo : ArrayList<String> = ArrayList(),
+        var documentID : String = ""
+) : Parcelable
+{
+    constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.createStringArrayList()!!,
+        parcel.readString()!!
+    ) {
+
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(name)
+        parcel.writeString(image)
+        parcel.writeString(creator)
+        parcel.writeStringList(assignedTo)
+        parcel.writeString(documentID)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Board> {
+        override fun createFromParcel(parcel: Parcel): Board {
+            return Board(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Board?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
