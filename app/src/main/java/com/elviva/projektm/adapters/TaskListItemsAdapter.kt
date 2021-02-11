@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elviva.projektm.R
 import com.elviva.projektm.activities.TaskListActivity
+import com.elviva.projektm.models.Card
 import com.elviva.projektm.models.Task
 import org.w3c.dom.Text
 
@@ -34,36 +36,37 @@ open class TaskListItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        // TASK UI --------------------------------------------------------------------------------
         val tvAddTaskList: TextView = holder.itemView.findViewById(R.id.tvAddTaskList) as TextView
-        val tvAddCard: TextView = holder.itemView.findViewById(R.id.tvAddCard) as TextView
-        val tvTaskListTitle: TextView =
-            holder.itemView.findViewById(R.id.tvTaskListTitle) as TextView
+        val tvTaskListTitle: TextView = holder.itemView.findViewById(R.id.tvTaskListTitle) as TextView
 
         val llTaskItem: LinearLayout = holder.itemView.findViewById(R.id.llTaksItem) as LinearLayout
-        val llTitleView: LinearLayout =
-            holder.itemView.findViewById(R.id.llTitleView) as LinearLayout
+        val llTitleView: LinearLayout = holder.itemView.findViewById(R.id.llTitleView) as LinearLayout
 
-        val cvAddTaskListName: CardView =
-            holder.itemView.findViewById(R.id.cvAddTaskListName) as CardView
-        val cvEditTaskListName: CardView =
-            holder.itemView.findViewById(R.id.cvEditTaskListName) as CardView
+        val cvAddTaskListName: CardView = holder.itemView.findViewById(R.id.cvAddTaskListName) as CardView
+        val cvEditTaskListName: CardView = holder.itemView.findViewById(R.id.cvEditTaskListName) as CardView
 
-        val ibCloseListName: ImageButton =
-            holder.itemView.findViewById(R.id.ibCloseListName) as ImageButton
-        val ibDoneListName: ImageButton =
-            holder.itemView.findViewById(R.id.ibDoneListName) as ImageButton
-        val ibEditListName: ImageButton =
-            holder.itemView.findViewById(R.id.ibEditListName) as ImageButton
-        val ibCloseEditableView: ImageButton =
-            holder.itemView.findViewById(R.id.ibCloseEditableView) as ImageButton
-        val ibDoneEditListName: ImageButton =
-            holder.itemView.findViewById(R.id.ibDoneEditListName) as ImageButton
-        val ibDeleteListName: ImageButton =
-            holder.itemView.findViewById(R.id.ibDeleteListName) as ImageButton
+        val ibCloseListName: ImageButton = holder.itemView.findViewById(R.id.ibCloseListName) as ImageButton
+        val ibDoneListName: ImageButton = holder.itemView.findViewById(R.id.ibDoneListName) as ImageButton
+        val ibEditListName: ImageButton = holder.itemView.findViewById(R.id.ibEditListName) as ImageButton
+        val ibCloseEditableView: ImageButton = holder.itemView.findViewById(R.id.ibCloseEditableView) as ImageButton
+        val ibDoneEditListName: ImageButton = holder.itemView.findViewById(R.id.ibDoneEditListName) as ImageButton
+        val ibDeleteListName: ImageButton = holder.itemView.findViewById(R.id.ibDeleteListName) as ImageButton
 
         val etTaskListName: EditText = holder.itemView.findViewById(R.id.etTaskListName) as EditText
-        val etEditTaskListName: EditText =
-            holder.itemView.findViewById(R.id.etEditTaskListName) as EditText
+        val etEditTaskListName: EditText = holder.itemView.findViewById(R.id.etEditTaskListName) as EditText
+
+        // CARD UI --------------------------------------------------------------------------------
+        val tvAddCard: TextView = holder.itemView.findViewById(R.id.tvAddCard) as TextView
+
+        val etEditCardName: EditText = holder.itemView.findViewById(R.id.etEditCardName) as EditText
+
+        val ibCloseCardName: ImageButton = holder.itemView.findViewById(R.id.ibCloseCardName) as ImageButton
+        val ibDoneCardName: ImageButton = holder.itemView.findViewById(R.id.ibDoneCardName) as ImageButton
+
+        val cvAddCard: CardView = holder.itemView.findViewById(R.id.cvAddCard) as CardView
+
+        val rvCardList: RecyclerView = holder.itemView.findViewById(R.id.rvCardList) as RecyclerView
 
         val model = list[position]
         if (holder is MyViewHolder) {
@@ -127,7 +130,40 @@ open class TaskListItemsAdapter(
             ibDeleteListName.setOnClickListener {
                 alertDialogForDeleteList(position, model.title)
             }
+
+            tvAddCard.setOnClickListener {
+                tvAddCard.visibility = View.GONE
+                cvAddCard.visibility = View.VISIBLE
+            }
+
+            ibCloseCardName.setOnClickListener {
+                tvAddCard.visibility = View.VISIBLE
+                cvAddCard.visibility = View.GONE
+            }
+
+            ibDoneCardName.setOnClickListener {
+                val cardName = etEditCardName.text.toString()
+                if (cardName.isNotEmpty()) {
+                    if (context is TaskListActivity) {
+                        context.addCardToTasklist(position, cardName)
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Cannot create empty cards. Please enter card name.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            rvCardList.layoutManager = LinearLayoutManager(context)
+            rvCardList.setHasFixedSize(true)
+
+            val adapter = CardListItemsAdapter(context, model.cards)
+            rvCardList.adapter = adapter
+
         }
+
     }
 
     private fun alertDialogForDeleteList(position: Int, title: String) {

@@ -8,6 +8,7 @@ import com.elviva.projektm.adapters.TaskListItemsAdapter
 import com.elviva.projektm.databinding.ActivityTaskListBinding
 import com.elviva.projektm.firebase.FirestoreClass
 import com.elviva.projektm.models.Board
+import com.elviva.projektm.models.Card
 import com.elviva.projektm.models.Task
 import com.elviva.projektm.utils.Constants
 
@@ -31,6 +32,31 @@ class TaskListActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().getBoardDetails(this, boardDocumentId)
 
+    }
+
+    fun addCardToTasklist(position: Int, cardName: String){
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
+
+        val currentUser = FirestoreClass().getCurrentUUID()
+
+        val cardAssignedUsersList: ArrayList<String> = ArrayList()
+        cardAssignedUsersList.add(currentUser)
+
+        val card = Card(cardName, currentUser, cardAssignedUsersList)
+
+        val cardsList = mBoardDetails.taskList[position].cards
+        cardsList.add(card)
+
+        val task = Task(
+            mBoardDetails.taskList[position].title,
+            mBoardDetails.taskList[position].creator,
+            cardsList
+        )
+
+        mBoardDetails.taskList[position] = task
+
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
 
     fun deleteTaskList(position: Int){
