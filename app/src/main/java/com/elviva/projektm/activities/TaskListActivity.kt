@@ -26,6 +26,7 @@ class TaskListActivity : BaseActivity() {
 
     companion object {
         const val MEMBERS_REQUEST_CODE : Int = 13
+        const val CARD_DETAIL_REQUEST_CODE : Int = 14
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +43,14 @@ class TaskListActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().getBoardDetails(this, mBoardDocumentId)
 
+    }
+
+    fun cardDetails(taskListPosition: Int, cardPosition: Int){
+        val intent = Intent(this, CardDetailsActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        startActivityForResult(intent, CARD_DETAIL_REQUEST_CODE)
     }
 
     fun addCardToTasklist(position: Int, cardName: String){
@@ -141,7 +150,7 @@ class TaskListActivity : BaseActivity() {
     //Reloading activity after pressing back button in "members" activity in case any changes were made by another user
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE){
+        if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAIL_REQUEST_CODE){
             showProgressDialog(resources.getString(R.string.please_wait))
             FirestoreClass().getBoardDetails(this, mBoardDocumentId)
         } else {

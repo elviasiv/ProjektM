@@ -14,6 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjektM">
         <activity
+            android:name=".activities.CardDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/noBar" />
+        <activity
             android:name=".activities.MembersActivity"
             android:screenOrientation="portrait"
             android:theme="@style/noBar" />
