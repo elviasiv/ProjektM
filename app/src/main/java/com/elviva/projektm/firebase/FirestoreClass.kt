@@ -38,9 +38,13 @@ class FirestoreClass {
             .addOnSuccessListener {
                 activity.memberAssignedSuccess(user)
             }
-            .addOnFailureListener{ e ->
+            .addOnFailureListener { e ->
                 activity.hideProgressDialog()
-                Log.e(activity.javaClass.simpleName, "Error while updating assign member to board", e)
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while updating assign member to board",
+                    e
+                )
             }
 
     }
@@ -63,7 +67,7 @@ class FirestoreClass {
             }
     }
 
-    fun getAssignedMembersList(activity: MembersActivity, assignedTo: ArrayList<String>) {
+    fun getAssignedMembersList(activity: Activity, assignedTo: ArrayList<String>) {
         mFirestore.collection(Constants.USERS)
             .whereIn(Constants.ID, assignedTo)
             .get()
@@ -77,8 +81,17 @@ class FirestoreClass {
                     usersList.add(user)
                 }
 
-                activity.setupMembersList(usersList)
+                if(activity is MembersActivity) {
+                    activity.setupMembersList(usersList)
+                } else if (activity is TaskListActivity){
+                    activity.boardMembersDetailList(usersList)
+                }
             }.addOnFailureListener { e ->
+                if(activity is MembersActivity) {
+                    activity.hideProgressDialog()
+                } else if (activity is TaskListActivity){
+                    activity.hideProgressDialog()
+                }
                 Log.e(
                     activity.javaClass.simpleName,
                     "Error while getting members list",
@@ -97,16 +110,16 @@ class FirestoreClass {
             .addOnSuccessListener {
                 Log.i(activity.javaClass.simpleName, "TaskList updated successfully")
 
-                if(activity is TaskListActivity) {
+                if (activity is TaskListActivity) {
                     activity.addUpdateTaskListSuccess()
-                } else if (activity is CardDetailsActivity){
+                } else if (activity is CardDetailsActivity) {
                     activity.addUpdateTaskListSuccess()
                 }
             }
             .addOnFailureListener { e ->
-                if(activity is TaskListActivity) {
+                if (activity is TaskListActivity) {
                     activity.hideProgressDialog()
-                } else if (activity is CardDetailsActivity){
+                } else if (activity is CardDetailsActivity) {
                     activity.hideProgressDialog()
                 }
                 Log.i(activity.javaClass.simpleName, "Error while creating the board", e)

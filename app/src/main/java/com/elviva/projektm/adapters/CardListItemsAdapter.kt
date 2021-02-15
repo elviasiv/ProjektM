@@ -1,6 +1,7 @@
 package com.elviva.projektm.adapters
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +11,10 @@ import com.elviva.projektm.R
 import com.elviva.projektm.models.Card
 
 
-open class CardListItemsAdapter (
+open class CardListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Card>
-    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
 
@@ -29,14 +30,22 @@ open class CardListItemsAdapter (
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tvCardName: TextView = holder.itemView.findViewById(R.id.tvCardName) as TextView
+        val vLabelColor: View = holder.itemView.findViewById(R.id.vLabelColor) as View
 
         val model = list[position]
 
-        if(holder is MyViewHolder){
+        if (holder is MyViewHolder) {
             tvCardName.text = model.name
 
+            if (model.labelColor.isNotEmpty()) {
+                vLabelColor.visibility = View.VISIBLE
+                vLabelColor.setBackgroundColor(Color.parseColor(model.labelColor))
+            } else {
+                vLabelColor.visibility = View.GONE
+            }
+
             holder.itemView.setOnClickListener {
-                if(onClickListener != null){
+                if (onClickListener != null) {
                     onClickListener!!.onClick(position)
                 }
             }
@@ -49,7 +58,7 @@ open class CardListItemsAdapter (
     }
 
 
-    fun setOnClickListener(onClickListener: OnClickListener){
+    fun setOnClickListener(onClickListener: OnClickListener) {
         this.onClickListener = onClickListener
     }
 

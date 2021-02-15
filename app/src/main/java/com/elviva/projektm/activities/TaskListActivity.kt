@@ -15,6 +15,7 @@ import com.elviva.projektm.firebase.FirestoreClass
 import com.elviva.projektm.models.Board
 import com.elviva.projektm.models.Card
 import com.elviva.projektm.models.Task
+import com.elviva.projektm.models.User
 import com.elviva.projektm.utils.Constants
 
 class TaskListActivity : BaseActivity() {
@@ -23,6 +24,7 @@ class TaskListActivity : BaseActivity() {
 
     private lateinit var  mBoardDetails: Board
     private lateinit var mBoardDocumentId: String
+    private lateinit var mAssignedMemberDetailList: ArrayList<User>
 
     companion object {
         const val MEMBERS_REQUEST_CODE : Int = 13
@@ -45,11 +47,18 @@ class TaskListActivity : BaseActivity() {
 
     }
 
+    fun boardMembersDetailList(list: ArrayList<User>){
+        mAssignedMemberDetailList = list
+
+        hideProgressDialog()
+    }
+
     fun cardDetails(taskListPosition: Int, cardPosition: Int){
         val intent = Intent(this, CardDetailsActivity::class.java)
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
         intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMemberDetailList)
         startActivityForResult(intent, CARD_DETAIL_REQUEST_CODE)
     }
 
@@ -61,7 +70,7 @@ class TaskListActivity : BaseActivity() {
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
         cardAssignedUsersList.add(currentUser)
 
-        val card = Card(cardName, currentUser, cardAssignedUsersList)
+        val card = Card(cardName, currentUser, "", cardAssignedUsersList)
 
         val cardsList = mBoardDetails.taskList[position].cards
         cardsList.add(card)
@@ -128,6 +137,9 @@ class TaskListActivity : BaseActivity() {
 
         val adapter = TaskListItemsAdapter(this, board.taskList)
         binding.rvTaskList.adapter = adapter
+
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().getAssignedMembersList(this, mBoardDetails.assignedTo)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
