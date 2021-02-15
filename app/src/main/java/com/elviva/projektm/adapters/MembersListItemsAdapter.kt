@@ -1,18 +1,20 @@
 package com.elviva.projektm.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.elviva.projektm.R
 import com.elviva.projektm.models.User
 import com.elviva.projektm.utils.Constants
 
-open class MembersListAdapter(
+open class MembersListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<User>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -30,37 +32,45 @@ open class MembersListAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val tvName : TextView = holder.itemView.findViewById<View>(R.id.tvMemberName) as TextView
-        val tvEmail : TextView = holder.itemView.findViewById<View>(R.id.tvMemberEmail) as TextView
-        val ivSelectedMember : ImageView = holder.itemView.findViewById<View>(R.id.ivSelectedMember) as ImageView
+        val tvMemberName: TextView = holder.itemView.findViewById<View>(R.id.tvMemberName) as TextView
+        val tvMemberEmail: TextView = holder.itemView.findViewById<View>(R.id.tvMemberEmail) as TextView
+
+        val ivMemberImage: ImageView = holder.itemView.findViewById<View>(R.id.ivMemberImage) as ImageView
+        val ivSelectedMember: ImageView = holder.itemView.findViewById<View>(R.id.ivSelectedMember) as ImageView
+
 
         val model = list[position]
-        if (holder is MyViewHolder) {
+        if(holder is MyViewHolder){
             Glide
                 .with(context)
                 .load(model.image)
                 .centerCrop()
                 .placeholder(R.drawable.ic_user_place_holder)
-                .into(holder.itemView.findViewById(R.id.ivMemberImage))
+                .into(ivMemberImage)
 
-            tvName.text = model.name
-            tvEmail.text = model.email
+            tvMemberName.text = model.name
+            tvMemberEmail.text = model.email
 
-            if (model.selected){
+            if (model.selected) {
                 ivSelectedMember.visibility = View.VISIBLE
             } else {
                 ivSelectedMember.visibility = View.GONE
             }
 
             holder.itemView.setOnClickListener {
-                if(onClickListener != null){
-                    if(model.selected){
+
+                if (onClickListener != null) {
+
+                    if (model.selected) {
                         onClickListener!!.onClick(position, model, Constants.UN_SELECT)
                     } else {
                         onClickListener!!.onClick(position, model, Constants.SELECT)
                     }
                 }
             }
+        } else {
+            Log.e("HOLDER", holder.toString())
+            Toast.makeText(context, "not a view holder in MembersListItemsAdapter", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -68,8 +78,11 @@ open class MembersListAdapter(
         return list.size
     }
 
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
+    }
 
-    interface OnClickListener{
+    interface OnClickListener {
         fun onClick(position: Int, user: User, action: String)
     }
 

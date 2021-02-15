@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.elviva.projektm.R
 import com.elviva.projektm.databinding.ActivityCardDetailsBinding
 import com.elviva.projektm.dialogs.LabelColorListDialog
+import com.elviva.projektm.dialogs.LabelMembersListDialog
 import com.elviva.projektm.firebase.FirestoreClass
 import com.elviva.projektm.models.Board
 import com.elviva.projektm.models.Card
@@ -38,13 +39,14 @@ class CardDetailsActivity : BaseActivity() {
         binding.etCardNameDetails.setText(mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].name)
         binding.etCardNameDetails.setSelection(binding.etCardNameDetails.text.toString().length) //Sets focus at the end of the line
 
-        mSelectedColor = mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].labelColor
-        if(mSelectedColor.isNotEmpty()){
+        mSelectedColor =
+            mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].labelColor
+        if (mSelectedColor.isNotEmpty()) {
             setColor()
         }
 
         binding.btnUpdateCardDetails.setOnClickListener {
-            if(binding.etCardNameDetails.text.toString().isNotEmpty()){
+            if (binding.etCardNameDetails.text.toString().isNotEmpty()) {
                 updateCardDetails()
             } else {
                 Toast.makeText(this, "Please enter a card name", Toast.LENGTH_SHORT).show()
@@ -54,26 +56,65 @@ class CardDetailsActivity : BaseActivity() {
         binding.tvSelectLabelColor.setOnClickListener {
             labelColorListDialog()
         }
+
+        binding.tvSelectMembers.setOnClickListener {
+            membersListDialog()
+        }
     }
 
-    private fun labelColorListDialog(){
+    private fun membersListDialog() {
+        var cardAssignedMembersList =
+            mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].assignedTo
+
+        //Checking if we have members in the list,
+        //if we do, we go through them
+        //for every single member in the list, check if its id is the same as assigned to the card member
+        //people can be assigned to the board but not to the card
+        if (cardAssignedMembersList.size > 0) {
+            for (i in mMembersDetailList.indices) {
+                for (j in cardAssignedMembersList) {
+                    if (mMembersDetailList[i].id == j) {
+                        mMembersDetailList[i].selected = true
+                    }
+                }
+            }
+        } else {
+            for (i in mMembersDetailList.indices) {
+                mMembersDetailList[i].selected = false
+            }
+        }
+
+        val listDialog = object : LabelMembersListDialog(
+            this,
+            mMembersDetailList,
+            resources.getString(R.string.str_select_member)
+        ) {
+            override fun onItemSelected(user: User, action: String) {
+                // TODO IMPLEMENT SELECTED MEMBERS
+            }
+
+        }
+        listDialog.show()
+    }
+
+    private fun labelColorListDialog() {
         val colorsList: ArrayList<String> = colorsList()
 
-        val listDialog = object: LabelColorListDialog(
+        val listDialog = object : LabelColorListDialog(
             this,
             colorsList,
             resources.getString(R.string.str_select_label_color),
             mSelectedColor
-        ){
+        ) {
             override fun onItemSelected(color: String) {
-               mSelectedColor = color
+                mSelectedColor = color
                 setColor()
             }
         }
         listDialog.show()
     }
 
-    private fun setColor(){
+    private fun setColor() {
         binding.tvSelectLabelColor.text = ""
         binding.tvSelectLabelColor.setBackgroundColor(Color.parseColor(mSelectedColor))
     }
@@ -91,13 +132,13 @@ class CardDetailsActivity : BaseActivity() {
         return colorList
     }
 
-    fun addUpdateTaskListSuccess(){
+    fun addUpdateTaskListSuccess() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()
     }
 
-    private fun updateCardDetails(){
+    private fun updateCardDetails() {
         val card = Card(
             binding.etCardNameDetails.text.toString(),
             mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].creator,
@@ -111,8 +152,9 @@ class CardDetailsActivity : BaseActivity() {
         FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
 
-    private fun deleteCard(){
-        val cardsList: ArrayList<Card> = mBoardDetails.taskList[mTaskListItemPosition].cards //getting all current cards for specific card list
+    private fun deleteCard() {
+        val cardsList: ArrayList<Card> =
+            mBoardDetails.taskList[mTaskListItemPosition].cards //getting all current cards for specific card list
 
         cardsList.removeAt(mCardPosition)
 
@@ -125,17 +167,17 @@ class CardDetailsActivity : BaseActivity() {
         FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
 
-    private fun getIntentData(){
-        if (intent.hasExtra(Constants.BOARD_DETAIL)){
+    private fun getIntentData() {
+        if (intent.hasExtra(Constants.BOARD_DETAIL)) {
             mBoardDetails = intent.getParcelableExtra(Constants.BOARD_DETAIL)!!
         }
-        if(intent.hasExtra(Constants.TASK_LIST_ITEM_POSITION)){
+        if (intent.hasExtra(Constants.TASK_LIST_ITEM_POSITION)) {
             mTaskListItemPosition = intent.getIntExtra(Constants.TASK_LIST_ITEM_POSITION, -1)
         }
-        if(intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)){
+        if (intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)) {
             mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1)
         }
-        if(intent.hasExtra(Constants.BOARD_MEMBERS_LIST)){
+        if (intent.hasExtra(Constants.BOARD_MEMBERS_LIST)) {
             mMembersDetailList = intent.getParcelableArrayListExtra(Constants.BOARD_MEMBERS_LIST)!!
         }
     }
@@ -146,7 +188,7 @@ class CardDetailsActivity : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.action_delete_card -> {
                 alertDialogForDeleteCard(mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].name)
                 return true
@@ -163,7 +205,8 @@ class CardDetailsActivity : BaseActivity() {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].name
+            actionBar.title =
+                mBoardDetails.taskList[mTaskListItemPosition].cards[mCardPosition].name
         }
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }

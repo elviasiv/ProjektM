@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary"
-            app:popupTheme="@style/popUpOverlay"/>
+            app:popupTheme="@style/popUpOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -72,12 +72,12 @@
                 android:orientation="vertical"
                 android:padding="@dimen/card_details_cv_content_padding">
 
-               <TextView
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:text="@string/label_color"
-                   android:textColor="@color/secondary_text_color"
-                   android:textSize="@dimen/card_details_label_text_size"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_color"
+                    android:textColor="@color/secondary_text_color"
+                    android:textSize="@dimen/card_details_label_text_size" />
 
                 <TextView
                     android:id="@+id/tvSelectLabelColor"
@@ -104,6 +104,14 @@
                     android:padding="@dimen/card_details_value_padding"
                     android:text="@string/select_members"
                     android:textColor="@color/primary_text_color" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSelectedMembersList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/card_details_value_marginTop"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <TextView
                     android:layout_width="match_parent"

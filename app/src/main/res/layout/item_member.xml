@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/item_member_marginBottom"
     android:orientation="vertical">
 
@@ -21,7 +21,7 @@
             android:contentDescription="@string/image_contentDescription"
             android:src="@drawable/ic_user_place_holder"
             app:civ_border_color="@color/primary_text_color"
-            app:civ_border_width="@dimen/item_member_image_circular_width_size"/>
+            app:civ_border_width="@dimen/item_member_image_circular_width_size" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/primary_text_color"
                 android:textSize="@dimen/item_member_name_text_size"
-                tools:text="Member Name"/>
+                tools:text="Member Name" />
 
             <TextView
                 android:id="@+id/tvMemberEmail"
@@ -43,9 +43,19 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/secondary_text_color"
                 android:textSize="@dimen/item_member_email_text_size"
-                tools:text="Email"/>
-
+                tools:text="Email" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivSelectedMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/item_label_color_selected_image_marginEnd"
+            android:contentDescription="@string/image_contentDescription"
+            android:src="@drawable/ic_vector_color_accent_done_24dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
@@ -54,5 +64,5 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/item_member_divider_height"
         android:layout_marginTop="@dimen/item_member_divider_marginTop"
-        android:background="@color/divider_color"/>
+        android:background="@color/divider_color" />
 </LinearLayout>
